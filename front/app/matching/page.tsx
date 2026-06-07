@@ -267,17 +267,6 @@ export default function MatchingPage() {
       payload: selectedSession.fullStudentData // 세션에 저장된 전체 데이터 사용
     };
 
-    // [추가] JSON 파일로 저장 (브라우저 다운로드 실행)
-    const blob = new Blob([JSON.stringify(aiPayload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ai_matching_request_${Date.now()}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       role: 'user',
