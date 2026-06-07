@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { MatchingSession, ChatMessage } from '@/types/recommendation';
 
 // react-markdown을 클라이언트 사이드에서만 동적으로 로드하여 SSR/번들링 에러 방지
-const ReactMarkdown = dynamic(() => import('react-markdown').then((mod) => typeof mod.default === 'function' ? mod.default : (mod as any).default), { 
+const ReactMarkdown = dynamic(() => import('react-markdown'), { 
   ssr: false,
   loading: () => <p className="text-sm animate-pulse text-gray-400">메시지 렌더링 중...</p>
 });
@@ -35,6 +35,9 @@ interface TeacherFilters {
 
 // MatchingSession 타입을 확장하여 UI용 추가 필드 정의
 type ExtendedSession = MatchingSession & { highSchool?: string; grade?: string; fullStudentData?: any };
+
+// 백엔드 API 베이스 URL (ngrok 주소 변경 시 여기만 수정)
+const BACKEND_URL = 'https://d2b0-122-32-117-5.ngrok-free.app';
 
 export default function MatchingPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -112,7 +115,12 @@ export default function MatchingPage() {
     const fetchStudents = async () => {
       try {
         // 서버의 엔드포인트인 /students/list로 수정
-        const response = await fetch('http://localhost:3001/students/list');
+        const response = await fetch(`${BACKEND_URL}/students/list`, {
+          headers: {
+            'ngrok-skip-browser-warning': '69420', // 아무 값이나 넣어도 경고창을 패스해 줍니다.
+          },
+        });
+
         if (response.ok) {
           const data = await response.json();
           setStudents(data);
@@ -168,14 +176,22 @@ export default function MatchingPage() {
         });
         
         // 1-1. 필터링된 선생님 조회
-        const teacherRes = await fetch(`http://localhost:3001/teachers/search/filter?${queryParams.toString()}`);
+        const teacherRes = await fetch(`${BACKEND_URL}/teachers/search/filter?${queryParams.toString()}`, {
+          headers: {
+            'ngrok-skip-browser-warning': '69420', // 아무 값이나 넣어도 경고창을 패스해 줍니다.
+          },
+        });
         if (!teacherRes.ok) throw new Error('선생님 데이터 조회 실패');
         const matchedTeachers = await teacherRes.json();
 
         // 1-2. 학생 상세 정보 조회 (Payload 보강용)
         console.log(`Fetching student detail for ID: ${activeStudent.id}`);
         // 서버 API 경로가 app.get("/students/:id") 이므로 호출 경로는 다음과 같습니다.
-        const studentRes = await fetch(`http://localhost:3001/students/${activeStudent.id}`);
+        const studentRes = await fetch(`${BACKEND_URL}/students/${activeStudent.id}`, {
+          headers: {
+            'ngrok-skip-browser-warning': '69420', // 아무 값이나 넣어도 경고창을 패스해 줍니다.
+          },
+        });
         
         let fullStudentData;
         if (studentRes.ok) {
@@ -366,7 +382,7 @@ export default function MatchingPage() {
                             hr: ({ node, ...props }) => <hr className="my-4 border-gray-200" {...props} />,
                           }}
                         >
-                          {msg.content}
+                          {msg.content || ''}
                         </ReactMarkdown>
                       ) : (
                         <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>

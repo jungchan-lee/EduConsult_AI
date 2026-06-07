@@ -29,7 +29,11 @@ export default function TeachersPage() {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const response = await fetch('http://localhost:3001/teachers');
+        const response = await fetch('https://d2b0-122-32-117-5.ngrok-free.app/teachers', {
+          headers: {
+            'ngrok-skip-browser-warning': '69420', // 아무 값이나 넣어도 경고창을 패스해 줍니다.
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           setTeachers(data);

@@ -52,6 +52,9 @@ const speechConcernsOptions = [
   { value: '논리적말하기', label: '논리적 말하기' },
 ];
 
+// 백엔드 API 베이스 URL
+const BACKEND_URL = 'https://d2b0-122-32-117-5.ngrok-free.app';
+
 interface StudentIntakeFormProps {
   onSubmit?: (data: StudentIntakeFormData) => Promise<void>;
   isLoading?: boolean;
@@ -173,9 +176,12 @@ export const StudentIntakeForm: React.FC<StudentIntakeFormProps> = ({ onSubmit, 
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:3001/students/save', {
+      const response = await fetch(`${BACKEND_URL}/students/save`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': '69420'
+        },
         body: JSON.stringify({
           name: formData.basicInfo.name,
           phone: formData.basicInfo.phone,
@@ -217,8 +223,11 @@ export const StudentIntakeForm: React.FC<StudentIntakeFormProps> = ({ onSubmit, 
       fileFormData.append('file', bioFile);
       fileFormData.append('student_id', String(studentId));
 
-      const uploadRes = await fetch('http://localhost:3001/students/upload', {
+      const uploadRes = await fetch(`${BACKEND_URL}/students/upload`, {
         method: 'POST',
+        headers: {
+          'ngrok-skip-browser-warning': '69420'
+        },
         body: fileFormData,
       });
 
