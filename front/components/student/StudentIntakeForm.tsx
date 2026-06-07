@@ -213,6 +213,7 @@ export const StudentIntakeForm: React.FC<StudentIntakeFormProps> = ({ onSubmit, 
     // ==============================
     if (bioFile) {
       const fileFormData = new FormData();
+      // Express 서버(localhost:3001)의 upload.single("file") 설정에 맞춰 필드명을 'file'로 수정합니다.
       fileFormData.append('file', bioFile);
       fileFormData.append('student_id', String(studentId));
 
@@ -222,10 +223,17 @@ export const StudentIntakeForm: React.FC<StudentIntakeFormProps> = ({ onSubmit, 
       });
 
       if (!uploadRes.ok) {
-        throw new Error('파일 업로드 실패');
+        let uploadError = '파일 업로드 실패';
+        try {
+          const errorData = await uploadRes.json();
+          uploadError = errorData.message || errorData.error || uploadError;
+        } catch {
+          const text = await uploadRes.text().catch(() => null);
+          if (text) uploadError = text;
+        }
+        throw new Error(uploadError);
       }
     }
-
     // ==============================
     // 완료
     // ==============================\
@@ -577,15 +585,15 @@ export const StudentIntakeForm: React.FC<StudentIntakeFormProps> = ({ onSubmit, 
           <div className="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold">
             4
           </div>
-          <h2 className="text-xl font-semibold text-gray-900">생기부 PDF</h2>
+          <h2 className="text-xl font-semibold text-gray-900">생활 기록부 파일</h2>
         </div>
 
         <FileUpload
-          label="생기부 PDF 업로드"
-          accept=".pdf"
+          label="생기부 파일 업로드"
+          accept=".pdf,.docx,image/*"
           onChange={handleFileUpload}
           value={bioFile}
-          helperText="학생의 생기부 PDF를 업로드해주세요"
+          helperText="학생의 생기부 PDF, Word(docx) 또는 이미지 파일을 업로드해주세요"
         />
       </section>
 

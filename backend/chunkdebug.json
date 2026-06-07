@@ -1,0 +1,50 @@
+{
+  "id": 31,
+  "chunks": [
+    {
+      "chunkId": "chunk_0",
+      "text": "전체적인 흐름은 아주 논리적이고 정석적인  '파일 업로드 및 메타데이터 관리'  프로세스야. 사용자가 파일을 올리면 서버에 물리적으로 저장하고, 그 위치(URL)를 DB에 기록해서 나중에 언제든 꺼내 볼 수 있게 만드는 구조니까. \n\n다만, 실제 구현할 때 놓치면 나중에 고생할 만한 *체크포인트(Pitfalls)*들이 몇 개 있어. 이 부분들을 고려해서 설계했는지 한번 확인해봐: \n\n1. 보안 및 파일 검증 (가장 중요!) \n*    파일 확장자 제한:  PDF만 허용한다고 했지만, 사용자가  .exe 나  .sh  같은 실행 파일을 PDF로 위장해서 올릴 수 있어. 서버에서 파일의 *MIME Type*을 반드시 체크해야 해. \n*    파일명 정제 (Sanitization):  사용자가  ../../etc/passwd  같은 경로 조작 공격(Path Traversal)을 시도할 수 있는 파일명을 보낼 수 있어. 저장할 때는 원래 이름 대신 *UUID나 타임스탬프를 조합한 고유한 이름*으로 바꿔서 저장하는 게 안전해. \n",
+      "sectionName": "",
+      "startPage": 0,
+      "endPage": 0,
+      "tokenCount": 267,
+      "characterCount": 1068
+    },
+    {
+      "chunkId": "chunk_1",
+      "text": "sal)을 시도할 수 있는 파일명을 보낼 수 있어. 저장할 때는 원래 이름 대신 *UUID나 타임스탬프를 조합한 고유한 이름*으로 바꿔서 저장하는 게 안전해. \n*    용량 제한:  너무 큰 PDF가 올라오면 서버 디스크가 꽉 차거나 서버가 뻗을 수 있으니, 최대 용량 제한(예: 10MB)을 반드시 걸어야 해. \n\n2. 저장 경로 및 URL 설계 \n*    정적 파일 서빙 (Static Serving):  \"서버컴 경로에 저장\"한다고 했는데, 이 경로가 웹에서 접근 가능한 위치(예: Nginx의  root 나 Express의  static  폴로)여야 해. 만약 보안상 외부 접근이 불가능한 깊은 곳에 저장한다면, 파일을 다운로드해주는 별도의 *API 엔드포인트*를 만들어야 할 수도 있어. \n*    URL의 성격:  DB에 저장할 때  *전체 경로(Absolute URL)*를 저장할지, 아니면  /uploads/abc.pdf` 같은 *상대 경로*만 저장할지 결정해야 해. (도메인이 바뀌거나 프로토콜이 HTTP -> HTTPS로 바뀔 때를 대비하면 상대 경로가 유리할 수 있어.) \n",
+      "sectionName": "",
+      "startPage": 0,
+      "endPage": 0,
+      "tokenCount": 274,
+      "characterCount": 1099
+    },
+    {
+      "chunkId": "chunk_2",
+      "text": "loads/abc.pdf` 같은 *상대 경로*만 저장할지 결정해야 해. (도메인이 바뀌거나 프로토콜이 HTTP -> HTTPS로 바뀔 때를 대비하면 상대 경로가 유리할 수 있어.) \n\n3. DB 및 트랜잭션 관리 \n*    원자성 (Atomicity):  파일은 서버에 잘 저장됐는데, 갑자기 네트워크 오류나 DB 에러로 인해 *DB 저장이 실패*하면 어떻게 될까? 그러면 서버에는 '주인 없는 유령 파일'이 남게 돼. \n    *    팁:  DB 저장을 먼저 시도하거나, 파일 저장 후 DB 저장 실패 시 생성된 파일을 삭제하는 로직(Rollback)이 필요해. \n\n4. 확장성 고려 \n*    스토리지 분리:  지금은 \"서버컴\"이라고 했지만, 나중에 사용자가 많아져서 서버가 여러 대가 되면(Scale-out), 각 서버의 로컬 디스크에 파일을 저장하는 방식은 한계가 와. (A 서버에 올린 파일을 B 서버에서는 못 보게 됨.) \n    *    미래 대비:  나중에는  AWS S3  같은 클라우드 스토리지로 옮기기 쉬운 구조(추상화된 저장 로직)로 짜두는 걸 추천해. \n",
+      "sectionName": "",
+      "startPage": 0,
+      "endPage": 0,
+      "tokenCount": 277,
+      "characterCount": 1108
+    },
+    {
+      "chunkId": "chunk_3",
+      "text": "B 서버에서는 못 보게 됨.) \n    *    미래 대비:  나중에는  AWS S3  같은 클라우드 스토리지로 옮기기 쉬운 구조(추상화된 저장 로직)로 짜두는 걸 추천해. \n\n--- \n\n요약하자면: \n계획 자체는 완벽해! 하지만 구현할 때  \"파일명은 UUID로 바꾸기\", \"용량/확장자 체크하기\", \"파일 저장과 DB 저장을 하나의 작업처럼 처리하기\"  이 세 가지만 신경 써도 훨씬 완성도 높은 시스템이 될 거야. \n\n이대로 진행해도 괜찮을 것 같아! 더 구체적인 구현 방법(코드 예시 등)이 필요하면 말해줘 \n\n\n\n\n\n.  \nDE 사토루. 오후 657\n\n1.008 스키마\n\n- 선생님 테이블 (가능한 시간대)\n\nV- 학생 테이블 (원하는 시간대)\n\n- 사용자 테이블 (로그인, system prompt)\n\n- SHAT DB (학생, 선생님, 일정, ALG, state, 날짜)\n- 생기부 pdf\n\n2. API 정의\n\n2-1. AL API\n\n~ AL 매칭 과정 채팅 (피드백 및 재탐색)\n\n- pdf 업로드 (파싱 -> vDB 저장)\n\nWAS 에서 보냄 > 파일 임베딩 및 vDB 저장 수행\n\n2-2. WAS API (0006.19)\n- pdf state update\nAl 서버에서 보냄. > RDB 상태 업데이트\n\n",
+      "sectionName": "",
+      "startPage": 0,
+      "endPage": 0,
+      "tokenCount": 289,
+      "characterCount": 1158
+    },
+    {
+      "chunkId": "chunk_4",
+      "text": "�색)\n\n- pdf 업로드 (파싱 -> vDB 저장)\n\nWAS 에서 보냄 > 파일 임베딩 및 vDB 저장 수행\n\n2-2. WAS API (0006.19)\n- pdf state update\nAl 서버에서 보냄. > RDB 상태 업데이트\n\n",
+      "sectionName": "",
+      "startPage": 0,
+      "endPage": 0,
+      "tokenCount": 50,
+      "characterCount": 200
+    }
+  ]
+}
