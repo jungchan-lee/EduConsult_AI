@@ -53,7 +53,7 @@ const speechConcernsOptions = [
 ];
 
 // 백엔드 API 베이스 URL
-const BACKEND_URL = 'https://d2b0-122-32-117-5.ngrok-free.app';
+const BACKEND_URL = 'https://9dcb-122-32-117-5.ngrok-free.app';
 
 interface StudentIntakeFormProps {
   onSubmit?: (data: StudentIntakeFormData) => Promise<void>;

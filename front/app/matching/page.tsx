@@ -37,7 +37,8 @@ interface TeacherFilters {
 type ExtendedSession = MatchingSession & { highSchool?: string; grade?: string; fullStudentData?: any };
 
 // 백엔드 API 베이스 URL (ngrok 주소 변경 시 여기만 수정)
-const BACKEND_URL = 'https://d2b0-122-32-117-5.ngrok-free.app';
+const BACKEND_URL = 'https://9dcb-122-32-117-5.ngrok-free.app';
+//const BACKEND_URL = 'http://localhost:3001';
 
 export default function MatchingPage() {
   const [students, setStudents] = useState<Student[]>([]);
